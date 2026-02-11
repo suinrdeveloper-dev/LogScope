@@ -1,9 +1,9 @@
-// 1. Plugins Block
+// 1. Plugins सबसे ऊपर
 plugins {
     id 'com.android.application'
 }
 
-// 2. Android Configuration Block
+// 2. Android Configuration
 android {
     namespace 'com.adobs.logscope'
     compileSdk 34
@@ -34,7 +34,7 @@ android {
     }
 }
 
-// 3. Dependencies Block
+// 3. Dependencies
 dependencies {
     // Android UI & Core Libraries
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -42,9 +42,9 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.recyclerview:recyclerview:1.3.0'
 
-    // 🔥 THE FAIL-SAFE FIX: GitHub Actions (Robot) खुद AAR फाइल बनाकर 'libs' फोल्डर में रखेगा
-    // यह लाइन उस फोल्डर से फाइल को तुम्हारे ऐप में जोड़ देगी।
-    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    // ✅ THE REAL FIX: JitPack से सीधे सही कोर मॉड्यूल ('Bcore') मँगवाना
+    // अब GitHub Actions को खुद कुछ भी कम्पाइल करने की ज़रूरत नहीं पड़ेगी।
+    implementation 'com.github.FBlackBox.BlackBox:Bcore:master-SNAPSHOT'
 
     // Gson (Correct Package Name)
     implementation 'com.google.code.gson:gson:2.10.1'
