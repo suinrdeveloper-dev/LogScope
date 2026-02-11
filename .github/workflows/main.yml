@@ -30,9 +30,10 @@ jobs:
           
           echo "2. Compiling BlackBox Core Engine..."
           cd blackbox_src
-          chmod +x gradlew
-          # BlackBox ke asli core module ka naam 'Bcore' hai
-          ./gradlew :Bcore:assembleRelease
+          
+          # ✅ THE FIX: Yahan 'chmod +x gradlew' aur './gradlew' hata diya gaya hai.
+          # Ab hum direct global 'gradle' command use kar rahe hain.
+          gradle :Bcore:assembleRelease
           
           echo "3. Copying Generated Engine to LogScope..."
           cd ..
@@ -41,13 +42,14 @@ jobs:
           
           echo "✅ BlackBox Engine successfully injected!"
 
+      # LogScope Project ke liye Gradle Wrapper Generate karna
       - name: Generate Gradle Wrapper (Fail-safe)
         run: gradle wrapper --gradle-version 8.2
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # Final App Build
+      # Final App Build (LogScope)
       - name: Build Release APK
         run: ./gradlew assembleRelease --stacktrace --no-daemon
 
