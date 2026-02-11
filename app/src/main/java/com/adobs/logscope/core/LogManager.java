@@ -58,9 +58,12 @@ public class LogManager {
 
     /**
      * यह बैकग्राउंड थ्रेड चुपचाप Queue से लॉग्स निकालकर फाइल में लिखता है
+     * (Optimized: Removed excessive flush() to prevent I/O blocking)
      */
     private static void startWriterThread() {
         writerThread = new Thread(() -> {
+            int logCount = 0; // बैच (Batch) ट्रैकिंग के लिए
+            
             while (isRunning || !logQueue.isEmpty()) {
                 try {
                     // यह तब तक ब्लॉक रहता है जब तक Queue में कोई नया लॉग न आ जाए (Zero CPU Waste)
@@ -69,13 +72,19 @@ public class LogManager {
                     if (bufferedWriter != null) {
                         bufferedWriter.write(message);
                         bufferedWriter.newLine();
-                        bufferedWriter.flush(); // डेटा तुरंत सेव करने के लिए
+                        
+                        // PERFORMANCE FIX: हर लॉग पर flush() करने के बजाय, सिर्फ हर 100 लॉग्स के बाद flush करें।
+                        logCount++;
+                        if (logCount % 100 == 0) {
+                            bufferedWriter.flush();
+                        }
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
                 } catch (IOException e) {
-                    Log.e(TAG, "Disk Write Failed", e);
+                    // VISIBILITY FIX: Full Stack Trace Logging
+                    Log.e(TAG, "Disk Write Failed with Exception: ", e);
                 }
             }
             closeSilently();
@@ -117,9 +126,11 @@ public class LogManager {
     private static void closeSilently() {
         if (bufferedWriter != null) {
             try {
+                // शटडाउन होने पर बचा हुआ सारा डेटा डिस्क पर सुरक्षित कर दें
                 bufferedWriter.flush();
                 bufferedWriter.close();
             } catch (IOException ignored) {}
         }
     }
 }
+
