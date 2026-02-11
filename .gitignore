@@ -1,0 +1,7 @@
+
+# Security & Environments
+.env
+*.pem
+secrets.json
+config.ini
+local_settings.py
