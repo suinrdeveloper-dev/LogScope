@@ -1,0 +1,40 @@
+name: Build Vault Admin (Release)
+
+on:
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          # SAFETY: JDK setup ke sath cache enable karne se build fast hota hai
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          # ✅ FIX RETAINED: Yahan humne version '8.2' fix rakha hai.
+          gradle-version: '8.2'
+
+      # SAFETY 1: Linux (Ubuntu) server par script chalane ki permission dena zaroori hai
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # SAFETY 2: Hamesha './gradlew' (Wrapper) use karein, direct 'gradle' nahi
+      - name: Build Release APK
+        run: ./gradlew assembleRelease --stacktrace --no-daemon
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: vault-admin-release
+          path: app/build/outputs/apk/release/*.apk
+          # ACTION: Ek bar upload ho jaye, toh artifact 30 din tak GitHub par save rahega
