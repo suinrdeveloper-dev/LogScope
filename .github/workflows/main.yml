@@ -22,23 +22,23 @@ jobs:
         with:
           gradle-version: '8.2'
 
-      # 🔥 THE NINJA TECHNIQUE: BlackBox Source Code Download & Compile
+      # 🔥 THE NINJA TECHNIQUE: BlackBox Download & Compile (Isolated)
       - name: Generate BlackBox AAR On-The-Fly
         run: |
-          echo "1. Downloading BlackBox Source Code..."
+          echo "1. Downloading BlackBox in Isolated Temp Directory..."
+          # $RUNNER_TEMP का उपयोग करके हम LogScope फोल्डर से बाहर जा रहे हैं (No Clash)
+          cd $RUNNER_TEMP
           git clone https://github.com/FBlackBox/BlackBox.git blackbox_src
           
           echo "2. Compiling BlackBox Core Engine..."
           cd blackbox_src
-          
-          # ✅ THE FIX: Yahan 'chmod +x gradlew' aur './gradlew' hata diya gaya hai.
-          # Ab hum direct global 'gradle' command use kar rahe hain.
+          # अब Gradle को LogScope का settings.gradle नहीं मिलेगा!
           gradle :Bcore:assembleRelease
           
           echo "3. Copying Generated Engine to LogScope..."
-          cd ..
-          mkdir -p app/libs
-          cp blackbox_src/Bcore/build/outputs/aar/*.aar app/libs/blackbox-core.aar
+          # $GITHUB_WORKSPACE हमारा असली LogScope प्रोजेक्ट फोल्डर है
+          mkdir -p $GITHUB_WORKSPACE/app/libs
+          cp Bcore/build/outputs/aar/*.aar $GITHUB_WORKSPACE/app/libs/blackbox-core.aar
           
           echo "✅ BlackBox Engine successfully injected!"
 
