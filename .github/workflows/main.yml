@@ -22,15 +22,32 @@ jobs:
         with:
           gradle-version: '8.2'
 
-      # ✅ NEW FIX: Agar repo mein gradlew nahi hai, toh ye command usko turant bana degi
+      # 🔥 THE NINJA TECHNIQUE: BlackBox Source Code Download & Compile
+      - name: Generate BlackBox AAR On-The-Fly
+        run: |
+          echo "1. Downloading BlackBox Source Code..."
+          git clone https://github.com/FBlackBox/BlackBox.git blackbox_src
+          
+          echo "2. Compiling BlackBox Core Engine..."
+          cd blackbox_src
+          chmod +x gradlew
+          # BlackBox ke asli core module ka naam 'Bcore' hai
+          ./gradlew :Bcore:assembleRelease
+          
+          echo "3. Copying Generated Engine to LogScope..."
+          cd ..
+          mkdir -p app/libs
+          cp blackbox_src/Bcore/build/outputs/aar/*.aar app/libs/blackbox-core.aar
+          
+          echo "✅ BlackBox Engine successfully injected!"
+
       - name: Generate Gradle Wrapper (Fail-safe)
         run: gradle wrapper --gradle-version 8.2
 
-      # Ab gradlew ban chuka hai, toh hum usko permission de sakte hain
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # Safe and standard compilation
+      # Final App Build
       - name: Build Release APK
         run: ./gradlew assembleRelease --stacktrace --no-daemon
 
