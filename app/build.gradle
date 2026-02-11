@@ -1,9 +1,9 @@
-// 1. Plugins सबसे ऊपर होना अनिवार्य है (इसी से 'implementation' काम करता है)
+// 1. Plugins Block
 plugins {
     id 'com.android.application'
 }
 
-// 2. Android Configuration
+// 2. Android Configuration Block
 android {
     namespace 'com.adobs.logscope'
     compileSdk 34
@@ -34,17 +34,18 @@ android {
     }
 }
 
-// 3. Dependencies सबसे अंत में आती हैं
+// 3. Dependencies Block
 dependencies {
+    // Android UI & Core Libraries
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.recyclerview:recyclerview:1.3.0'
 
-    // ✅ THE FIX: Direct GitHub Multi-Module via JitPack
-    // यह सीधे आधिकारिक GitHub रिपॉजिटरी से कोर मॉड्यूल उठाएगा
-    implementation 'com.github.FBlackBox.BlackBox:blackbox-core:master-SNAPSHOT'
+    // 🔥 THE FAIL-SAFE FIX: GitHub Actions (Robot) खुद AAR फाइल बनाकर 'libs' फोल्डर में रखेगा
+    // यह लाइन उस फोल्डर से फाइल को तुम्हारे ऐप में जोड़ देगी।
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
-    // Gson Correct Package Name
+    // Gson (Correct Package Name)
     implementation 'com.google.code.gson:gson:2.10.1'
 }
