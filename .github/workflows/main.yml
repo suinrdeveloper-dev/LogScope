@@ -22,34 +22,14 @@ jobs:
         with:
           gradle-version: '8.2'
 
-      # 🔥 THE NINJA TECHNIQUE: BlackBox Download & Compile (Isolated)
-      - name: Generate BlackBox AAR On-The-Fly
-        run: |
-          echo "1. Downloading BlackBox in Isolated Temp Directory..."
-          # $RUNNER_TEMP का उपयोग करके हम LogScope फोल्डर से बाहर जा रहे हैं (No Clash)
-          cd $RUNNER_TEMP
-          git clone https://github.com/FBlackBox/BlackBox.git blackbox_src
-          
-          echo "2. Compiling BlackBox Core Engine..."
-          cd blackbox_src
-          # अब Gradle को LogScope का settings.gradle नहीं मिलेगा!
-          gradle :Bcore:assembleRelease
-          
-          echo "3. Copying Generated Engine to LogScope..."
-          # $GITHUB_WORKSPACE हमारा असली LogScope प्रोजेक्ट फोल्डर है
-          mkdir -p $GITHUB_WORKSPACE/app/libs
-          cp Bcore/build/outputs/aar/*.aar $GITHUB_WORKSPACE/app/libs/blackbox-core.aar
-          
-          echo "✅ BlackBox Engine successfully injected!"
-
-      # LogScope Project ke liye Gradle Wrapper Generate karna
-      - name: Generate Gradle Wrapper (Fail-safe)
+      # बस एक बार Wrapper जनरेट करना है
+      - name: Generate Gradle Wrapper
         run: gradle wrapper --gradle-version 8.2
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # Final App Build (LogScope)
+      # सीधा तुम्हारा ऐप बिल्ड होगा
       - name: Build Release APK
         run: ./gradlew assembleRelease --stacktrace --no-daemon
 
